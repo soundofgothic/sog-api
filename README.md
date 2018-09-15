@@ -1,4 +1,4 @@
-##Sound of Gothic - server api
+## Sound of Gothic - server api
 
 Related Docker Hub can be found [here](https://hub.docker.com/r/soundofgothic/api/)
 
