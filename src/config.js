@@ -1,3 +1,3 @@
 module.exports = {
-    mongoConnection: "mongodb://localhost:27017"
+    mongoConnection: "mongodb://mongo:27017"
 };
