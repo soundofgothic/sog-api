@@ -34,3 +34,25 @@ module.exports.searchTexts = function(text, pageSize, pageNumber) {
         });
     });
 };
+
+
+module.exports.searchBySource = function (source, pageSize, pageNumber) {
+    return new Promise((resolve, reject)=>{
+        getDbConnection().then((client)=>{
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let textQuery = texts.find( { source: source} )
+                .skip(pageSize * pageNumber)
+                .limit(pageSize);
+
+            let totalCount = textQuery.count();
+
+            Promise.all([textQuery.toArray(), totalCount]).then(([records, count])=>{
+                resolve({
+                    records: records,
+                    recordCountTotal: count
+                });
+            });
+        });
+    });
+};

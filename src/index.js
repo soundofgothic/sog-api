@@ -19,4 +19,19 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/source', (req, res) => {
+    var source = req.query.source || '';
+    var page = parseInt(req.query.page) || 0;
+    var pageSize = parseInt(req.query.pageSize) || 50;
+
+    db_utils.searchBySource(source, pageSize, page).then((texts)=>{
+        texts.defaultPageSize = pageSize;
+        texts.pageNumber = page;
+        texts.recordsOnPage = texts.records.length;
+        res.json(texts);
+    }).catch((e)=>{
+        console.log(e);
+    });
+});
+
 app.listen(3000, () => console.log('App listening on port 3000!'));
