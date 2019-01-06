@@ -1,4 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 var url = require('./config').mongoConnection;
 var dbname = "sog-db";
 
@@ -35,7 +36,6 @@ module.exports.searchTexts = function(text, pageSize, pageNumber) {
     });
 };
 
-
 module.exports.searchBySource = function (source, pageSize, pageNumber) {
     return new Promise((resolve, reject)=>{
         getDbConnection().then((client)=>{
@@ -53,6 +53,16 @@ module.exports.searchBySource = function (source, pageSize, pageNumber) {
                     recordCountTotal: count
                 });
             });
+        });
+    });
+};
+
+module.exports.searchById = function (id) {
+    return new Promise((resolve, reject)=>{
+        getDbConnection().then((client)=>{
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let query = texts.findOne({_id : ObjectId(id)}).then(data=>resolve(data));
         });
     });
 };

@@ -34,4 +34,9 @@ app.get('/source', (req, res) => {
     });
 });
 
+app.get('/id/:id', (req, res) => {
+    let id = req.params.id;
+    db_utils.searchById(id).then(text=> res.json(text));
+});
+
 app.listen(3000, () => console.log('App listening on port 3000!'));
