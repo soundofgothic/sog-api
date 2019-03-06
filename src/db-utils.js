@@ -66,3 +66,13 @@ module.exports.searchById = function (id) {
         });
     });
 };
+
+module.exports.reportById = function (id) {
+    return new Promise((resolve, reject)=>{
+        getDbConnection().then((client)=>{
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let update = texts.updateOne({_id: ObjectId(id)}, { $inc: { "reported" : 1 } }).then(data=>resolve(data));
+        })
+    })
+};
