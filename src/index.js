@@ -3,6 +3,7 @@ var cors = require('cors');
 const app = express();
 var db_utils = require('./db-utils');
 
+app.use(express.json());
 app.use(cors());
 app.get('/', (req, res) => {
     var filter = req.query.filter || '';
@@ -41,8 +42,9 @@ app.get('/id/:id', (req, res) => {
 
 app.post('/report/:id', (req, res) => {
     let id = req.params.id;
+    let details = req.body.details;
     //there will be captcha verification
-    db_utils.reportById(id).then( status => res.json(status));
+    db_utils.reportById(id, details).then( status => res.json(status));
 });
 
 app.listen(3000, () => console.log('App listening on port 3000!'));
