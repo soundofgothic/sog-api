@@ -1,11 +1,6 @@
-var MongoClient = require('mongodb').MongoClient;
-var ObjectId = require('mongodb').ObjectID;
-var url = require('./config').mongoConnection;
-var dbname = "sog-db";
-
-getDbConnection=function(){
-    return MongoClient.connect(url);
-};
+var getDbConnection = require('../utils').getDbConnection;
+var dbname = require('../utils').dbname;
+let ObjectId = require('mongodb').ObjectId;
 
 module.exports.searchTexts = function(text, pageSize, pageNumber) {
     return new Promise((resolve, reject)=>{

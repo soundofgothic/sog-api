@@ -1,3 +1,5 @@
 module.exports = {
-    mongoConnection: "mongodb://mongo:27017"
+    mongoConnection: "mongodb://localhost:27017",
+    secret: "TETRIANDOCH",
+    dbName: "sog-db",
 };
