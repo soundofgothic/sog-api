@@ -27,8 +27,8 @@ module.exports = function (app) {
     app.post('/reports/resolve', (req, res) =>{
        let id = req.body.id;
        let text = req.body.text;
-       let user_name = utils.getUserFromToken(req);
-       reportService.resolveReport(id, text, user_name).then((status)=>{
+       let user = utils.getUserFromToken(req);
+       reportService.resolveReport(id, text, user.id).then((status)=>{
            res.json(status);
        })
     });

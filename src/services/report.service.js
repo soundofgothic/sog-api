@@ -32,14 +32,14 @@ module.exports.searchReports = function (filter, pageSize, pageNumber) {
     });
 };
 
-module.exports.resolveReport = function (id, newText, userEmail) {
+module.exports.resolveReport = function (id, newText, userId) {
     return new Promise((resolve, reject) => {
         getDbConnection().then((client) => {
             var db = client.db(dbname);
             var texts = db.collection('texts');
             var users = db.collection('users');
-            let updateText = texts.updateOne({_id: ObjectId(id)}, { $set: { "reported" : 1 } });
-            let updateUser = users.updateOne({email: userEmail}, { $inc: { "actions": 1 }, $push: { "modified": ObjectId(id) } })
+            let updateText = texts.updateOne({_id: ObjectId(id)}, { $set: { "text" : newText, "reported" : 0 }, $unset: { "details": "" } });
+            let updateUser = users.updateOne({_id: ObjectId(userId)}, { $inc: { "actions": 1 }, $push: { "modified": ObjectId(id) } });
             Promise.all([updateText, updateUser]).then(()=>{
                 resolve({status: "ok"});
             }).catch((err)=>{
