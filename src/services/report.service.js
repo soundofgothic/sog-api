@@ -49,3 +49,36 @@ module.exports.resolveReport = function (id, newText, userId) {
     });
 };
 
+module.exports.deleteReport = function (id, userId) {
+    return new Promise((resolve, reject) => {
+        getDbConnection().then((client) => {
+            var db = client.db(dbname);
+            var texts = db.collection('texts');
+            var users = db.collection('users');
+            let updateText = texts.updateOne({_id: ObjectId(id)}, { $set: { "reported" : 0 }, $unset: { "details": "" } });
+            let updateUser = users.updateOne({_id: ObjectId(userId)}, { $inc: { "actions": 1 }, $push: { "denied": ObjectId(id) } });
+            Promise.all([updateText, updateUser]).then(()=>{
+                resolve({status: "ok"});
+            }).catch((err)=>{
+                resolve({status: "err"})
+            });
+        });
+    });
+};
+
+module.exports.deleteEntry = function (id, userId) {
+    return new Promise(async (resolve, reject) => {
+        getDbConnection().then(async (client) => {
+            var db = client.db(dbname);
+            var texts = db.collection('texts');
+            var users = db.collection('users');
+            var deletedText = await texts.findOne({_id: ObjectId(id)});
+            users.updateOne({_id: ObjectId(userId)}, { $inc: { "actions": 1 }, $push: { "deleted": deletedText } })
+                .then(()=>{
+                    texts.remove({_id: ObjectId(id)}, true).then((status)=> resolve(status))
+                })
+        });
+    });
+};
+
+

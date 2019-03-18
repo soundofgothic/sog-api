@@ -4,10 +4,10 @@ let expressJwt = require('express-jwt');
 
 module.exports = function (app) {
 
-    app.use('/reports/*', expressJwt({
-        secret: utils.getSecret,
-        getToken: utils.getToken,
-    }).unless({path: ['/user/auth']}));
+    // app.use('/reports/*', expressJwt({
+    //     secret: utils.getSecret,
+    //     getToken: utils.getToken,
+    // }).unless({path: ['/user/auth']}));
 
     app.get('/reports', (req, res) => {
         var page = parseInt(req.query.page) || 0;
@@ -31,6 +31,22 @@ module.exports = function (app) {
        reportService.resolveReport(id, text, user.id).then((status)=>{
            res.json(status);
        })
+    });
+
+    app.post('/reports/cancel', (req, res) =>{
+        let id = req.body.id;
+        let user = utils.getUserFromToken(req);
+        reportService.deleteReport(id, user.id).then((status)=>{
+            res.json(status);
+        })
+    });
+
+    app.post('/reports/delete', (req, res) =>{
+        let id = req.body.id;
+        let user = utils.getUserFromToken(req);
+        reportService.deleteEntry(id, user.id).then((status)=>{
+            res.json(status);
+        })
     });
 
 };

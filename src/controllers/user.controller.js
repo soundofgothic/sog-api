@@ -7,7 +7,7 @@ module.exports = function (app) {
     app.use('/user/*', expressJwt({
         secret: utils.getSecret,
         getToken: utils.getToken,
-    }).unless({path: ['/user/auth']}));
+    }).unless({path: ['/user/auth', '/user/create']}));
 
     app.post('/user/auth', function (req, res) {
         let theUser = {
