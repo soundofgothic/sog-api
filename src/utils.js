@@ -3,6 +3,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = require('./config').mongoConnection;
 var dbname = require('./config').dbName;
 var secret = process.env.SECRET || require('./config').secret;
+var tokenExpirationTime = require('./config').tokenExpirationTime;
 
 getSecret = function (req, payload, done) {
     if (done)
@@ -39,7 +40,8 @@ generateToken = function (user) {
         sub: user.email,
         id: user._id,
     }, secret, {
-        expiresIn: 48 * 60 * 60
+        // expiresIn: 48 * 60 * 60,
+        expiresIn: tokenExpirationTime
     });
 };
 

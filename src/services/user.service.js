@@ -64,7 +64,6 @@ module.exports.authenticate = function(theUser) {
                                 token: generateToken(user)
                             });
                         }else{
-                            console.log('Bad password:' +theUser.password);
                             reject("Bad user or password");
                         }
                         client.close();

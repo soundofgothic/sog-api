@@ -4,10 +4,10 @@ let expressJwt = require('express-jwt');
 
 module.exports = function (app) {
 
-    // app.use('/reports/*', expressJwt({
-    //     secret: utils.getSecret,
-    //     getToken: utils.getToken,
-    // }).unless({path: ['/user/auth']}));
+    app.use(['/reports/*', '/reports'], expressJwt({
+        secret: utils.getSecret,
+        getToken: utils.getToken,
+    }));
 
     app.get('/reports', (req, res) => {
         var page = parseInt(req.query.page) || 0;

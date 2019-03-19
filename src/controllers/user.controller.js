@@ -9,6 +9,7 @@ module.exports = function (app) {
         getToken: utils.getToken,
     }).unless({path: ['/user/auth', '/user/create']}));
 
+
     app.post('/user/auth', function (req, res) {
         let theUser = {
             email: req.body.email,
@@ -16,7 +17,7 @@ module.exports = function (app) {
         };
         userService.authenticate(theUser)
             .then((data) => res.json(data))
-            .catch((err) => res.status(400).json({msg: err}));
+            .catch((err) => res.status(400).json({msg: "Zły login lub hasło"}));
     });
 
     app.post("/user/logged", function (req, res) {
