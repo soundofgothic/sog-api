@@ -26,14 +26,14 @@ module.exports = function (app) {
         }); //if not, jwt should not allow to get here
     });
 
-    app.post('/user/create', (req, res) => {
-        let newUser = {
-            email: req.body.email,
-            password: req.body.password
-        };
-        userService.createUser(newUser).then(() => res.json({status: 'ok'})).catch((err) => {
-            res.status(400);
-            res.json({error: err, status: 'bad'});
-        });
-    });
+    // app.post('/user/create', (req, res) => {
+    //     let newUser = {
+    //         email: req.body.email,
+    //         password: req.body.password
+    //     };
+    //     userService.createUser(newUser).then(() => res.json({status: 'ok'})).catch((err) => {
+    //         res.status(400);
+    //         res.json({error: err, status: 'bad'});
+    //     });
+    // });
 };
