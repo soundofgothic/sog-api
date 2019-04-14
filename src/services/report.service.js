@@ -25,7 +25,7 @@ module.exports.searchReports = function (filter, pageSize, pageNumber) {
                         records: records,
                         recordCountTotal: count
                     });
-                });
+                }).finally(() => client.close());
 
             });
         });
@@ -44,7 +44,7 @@ module.exports.resolveReport = function (id, newText, userId) {
                 resolve({status: "ok"});
             }).catch((err)=>{
                 resolve({status: "err"})
-            });
+            }).finally(() => client.close());
         });
     });
 };
@@ -61,7 +61,7 @@ module.exports.deleteReport = function (id, userId) {
                 resolve({status: "ok"});
             }).catch((err)=>{
                 resolve({status: "err"})
-            });
+            }).finally(() => client.close());
         });
     });
 };
@@ -76,7 +76,7 @@ module.exports.deleteEntry = function (id, userId) {
             users.updateOne({_id: ObjectId(userId)}, { $inc: { "actions": 1 }, $push: { "deleted": deletedText } })
                 .then(()=>{
                     texts.remove({_id: ObjectId(id)}, true).then((status)=> resolve(status))
-                })
+                }).finally(() => client.close());
         });
     });
 };

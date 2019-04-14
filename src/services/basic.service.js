@@ -24,8 +24,7 @@ module.exports.searchTexts = function(text, pageSize, pageNumber) {
                         records: records,
                         recordCountTotal: count
                     });
-                });
-
+                }).finally(() => client.close());;
             });
         });
     });
@@ -47,7 +46,7 @@ module.exports.searchBySource = function (source, pageSize, pageNumber) {
                     records: records,
                     recordCountTotal: count
                 });
-            });
+            }).finally(() => client.close());;
         });
     });
 };
@@ -57,7 +56,7 @@ module.exports.searchById = function (id) {
         getDbConnection().then((client)=>{
             let db = client.db(dbname);
             let texts = db.collection('texts');
-            let query = texts.findOne({_id : ObjectId(id)}).then(data=>resolve(data));
+            let query = texts.findOne({_id : ObjectId(id)}).then(data=>resolve(data)).finally(() => client.close());;
         });
     });
 };
@@ -67,7 +66,9 @@ module.exports.reportById = function (id, details) {
         getDbConnection().then((client)=>{
             let db = client.db(dbname);
             let texts = db.collection('texts');
-            let update = texts.updateOne({_id: ObjectId(id)}, { $inc: { "reported" : 1 }, $push: { details: details } }).then(data=>resolve(data));
+            let update = texts.updateOne({_id: ObjectId(id)}, { $inc: { "reported" : 1 }, $push: { details: details } })
+                .then(data=>resolve(data))
+                .finally(() => client.close());;
         })
     })
 };
