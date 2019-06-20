@@ -1,10 +1,6 @@
-var MongoClient = require('mongodb').MongoClient;
-var url = require('./config').mongoConnection;
-var dbname = "sog-db";
-
-getDbConnection=function(){
-    return MongoClient.connect(url);
-};
+var getDbConnection = require('../utils').getDbConnection;
+var dbname = require('../utils').dbname;
+let ObjectId = require('mongodb').ObjectId;
 
 module.exports.searchTexts = function(text, pageSize, pageNumber) {
     return new Promise((resolve, reject)=>{
@@ -28,13 +24,11 @@ module.exports.searchTexts = function(text, pageSize, pageNumber) {
                         records: records,
                         recordCountTotal: count
                     });
-                });
-
+                }).finally(() => client.close());;
             });
         });
     });
 };
-
 
 module.exports.searchBySource = function (source, pageSize, pageNumber) {
     return new Promise((resolve, reject)=>{
@@ -52,7 +46,29 @@ module.exports.searchBySource = function (source, pageSize, pageNumber) {
                     records: records,
                     recordCountTotal: count
                 });
-            });
+            }).finally(() => client.close());;
         });
     });
+};
+
+module.exports.searchById = function (id) {
+    return new Promise((resolve, reject)=>{
+        getDbConnection().then((client)=>{
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let query = texts.findOne({_id : ObjectId(id)}).then(data=>resolve(data)).finally(() => client.close());;
+        });
+    });
+};
+
+module.exports.reportById = function (id, details) {
+    return new Promise((resolve, reject)=>{
+        getDbConnection().then((client)=>{
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let update = texts.updateOne({_id: ObjectId(id)}, { $inc: { "reported" : 1 }, $push: { details: details } })
+                .then(data=>resolve(data))
+                .finally(() => client.close());;
+        })
+    })
 };
