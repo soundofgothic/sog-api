@@ -2,7 +2,8 @@ let getDbConnection = require('../utils').getDbConnection;
 let dbname = require('../utils').dbname;
 let ObjectId = require('mongodb').ObjectId;
 
-module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved) {
+
+module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved, sortField, sortOrder) {
     return new Promise((resolve, reject) => {
         getDbConnection().then((client) => {
             var db = client.db(dbname);
@@ -12,14 +13,25 @@ module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved)
                 "filename": "text"
             }).then(() => {
                 let query = {
-                    tags: tags,
                     $or: [{description: new RegExp(filter, "i")}, {filename: new RegExp(filter, "i")}]
                 };
-                if(solved !== undefined && solved !== null) {
+                if (solved !== undefined && solved !== null) {
                     query.solved = solved;
                 }
+                console.log(tags);
+                if (tags.length > 0) {
+                    if (tags.includes('null') && tags.length === 1) {
+                        query.tags = {$eq: []};
+                    } else if (!tags.includes('all')) {
+                        query.tags = {$all: tags}
+                    }
+                }
+
+                let sort = {};
+                sort[sortField] = sortOrder;
+
                 let soundQuery = sounds.find(query)
-                    .sort({reported: -1})
+                    .sort(sort)
                     .skip(pageSize * pageNumber)
                     .limit(pageSize);
 
@@ -53,41 +65,16 @@ module.exports.reportSFX = function (id, description, tags) {
     })
 };
 
-module.exports.resolveDescriptionSFX = function (id, description, solved) {
+module.exports.resolveSFX = function (id, description, tags, userId, solved) {
     return new Promise((resolve, reject) => {
         getDbConnection().then((client) => {
             let db = client.db(dbname);
             let sfx = db.collection('sfx');
             let users = db.collection('users');
             let updateSFX = sfx.updateOne({_id: ObjectId(id)}, {
-                $set: {
-                    "description": description,
-                    "reported": 0,
-                    "solved": solved
-                }, $unset: {"r_descriptions": ""}
-            });
-            let updateUser = users.updateOne({_id: ObjectId(userId)}, {
-                $inc: {"actions": 1},
-                $push: {"sfx_modified": ObjectId(id)}
-            });
-            Promise.all([updateSFX, updateUser]).then(() => {
-                resolve({status: "ok"});
-            }).catch((err) => {
-                resolve({status: "err"})
-            }).finally(() => client.close());
-        });
-    });
-};
-
-module.exports.resolveTagsSFX = function (id, tags, solved) {
-    return new Promise((resolve, reject) => {
-        getDbConnection().then((client) => {
-            let db = client.db(dbname);
-            let sfx = db.collection('sfx');
-            let users = db.collection('users');
-            let updateSFX = sfx.updateOne({_id: ObjectId(id)}, {
-                $set: {"reported": 0, "solved": solved},
-                $addToSet: {tags: {$each: tags}}
+                $set: {"reported": 0, "solved": solved, "tags": tags, "description": description},
+                $unset: {"r_descriptions": "", "r_tags": ""}
+                // $addToSet: {tags: {$each: tags}}
             });
             let updateUser = users.updateOne({_id: ObjectId(userId)}, {
                 $inc: {"actions": 1},
@@ -136,6 +123,26 @@ module.exports.deleteEntrySFX = function (id, userId) {
                 .then(() => {
                     texts.remove({_id: ObjectId(id)}, true).then((status) => resolve(status))
                 }).finally(() => client.close());
+        });
+    });
+};
+
+module.exports.getSFXTags = function () {
+    return new Promise((resolve, reject) => {
+        getDbConnection().then(async (client) => {
+            let db = client.db(dbname);
+            let sfx = db.collection('sfx');
+            let tagsCounted = sfx.aggregate([{$project: {tags: 1}}, {$unwind: "$tags"}, {
+                $group: {
+                    _id: "$tags",
+                    count: {"$sum": 1}
+                }
+            }, {$sort: {count: -1}}]).toArray();
+            let untaggedCounter = sfx.countDocuments({tags: {$size: 0}});
+            Promise.all([tagsCounted, untaggedCounter]).then(([tagsCounter, untaggedCounter]) => {
+                tagsCounter.push({_id: "null", count: untaggedCounter});
+                resolve(tagsCounter);
+            })
         });
     });
 };
