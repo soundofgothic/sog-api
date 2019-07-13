@@ -1,15 +1,22 @@
 let SFXService = require('../services/sfx.service');
 let utils = require('../utils');
+let expressJwt = require('express-jwt');
 
 module.exports = function (app) {
+
+    app.use(['/sfx/resolve'], expressJwt({
+        secret: utils.getSecret,
+        getToken: utils.getToken,
+    }));
+
     app.get('/sfx/', (req, res) => {
         let filter = req.query.filter || '';
         let page = parseInt(req.query.page) || 0;
         let pageSize = parseInt(req.query.pageSize) || 50;
         let tags = req.query.tags || "all";
         let solved = req.query.solved ? req.query.solved === 'true' : null;
-        let sortField = req.query.sortField ? req.query.sortField : 'filename';
-        let sortOrder = req.query.sortOrder ? parseInt(req.query.sortOrder) : 1;
+        let sortField = req.query.sortField ? req.query.sortField : 'not-set';
+        let sortOrder = req.query.sortOrder ? parseInt(req.query.sortOrder) : -1;
         tags = tags.split(", ");
 
         SFXService.searchSFX(filter, tags, pageSize, page, solved, sortField, sortOrder).then((sfx) => {

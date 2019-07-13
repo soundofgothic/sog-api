@@ -18,7 +18,6 @@ module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved,
                 if (solved !== undefined && solved !== null) {
                     query.solved = solved;
                 }
-                console.log(tags);
                 if (tags.length > 0) {
                     if (tags.includes('null') && tags.length === 1) {
                         query.tags = {$eq: []};
@@ -28,7 +27,9 @@ module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved,
                 }
 
                 let sort = {};
-                sort[sortField] = sortOrder;
+                if(sortField !== 'not-set') {
+                    sort[sortField] = sortOrder;
+                }
 
                 let soundQuery = sounds.find(query)
                     .sort(sort)
