@@ -8,6 +8,7 @@ app.use(cors());
 require('./controllers/basic.controller')(app);
 require('./controllers/user.controller')(app);
 require('./controllers/reports.controller')(app);
+require('./controllers/sfx.controller')(app);
 
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
