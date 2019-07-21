@@ -2,13 +2,17 @@ var basicService = require('../services/basic.service');
 
 module.exports = function (app) {
     app.get('/', (req, res) => {
-        var filter = req.query.filter || '';
-        var page = parseInt(req.query.page) || 0;
-        var pageSize = parseInt(req.query.pageSize) || 50;
 
-        basicService.searchTexts(filter, pageSize, page).then((texts) => {
-            texts.defaultPageSize = pageSize;
-            texts.pageNumber = page;
+        let config = {
+            filter: req.query.filter || '',
+            page: parseInt(req.query.page) || 0,
+            pageSize: parseInt(req.query.pageSize) || 50,
+            versions: req.query.g ? req.query.g.split(", ").map(v => parseInt(v)) : [1, 2, 3]
+        };
+
+        basicService.searchTexts(config).then((texts) => {
+            texts.defaultPageSize = config.pageSize;
+            texts.pageNumber = config.page;
             texts.recordsOnPage = texts.records.length;
             res.json(texts);
         }).catch((e) => {
@@ -40,6 +44,6 @@ module.exports = function (app) {
         let id = req.params.id;
         let details = req.body.details;
         //there will be captcha verification
-        basicService.reportById(id, details).then( status => res.json(status));
+        basicService.reportById(id, details).then(status => res.json(status));
     });
 };

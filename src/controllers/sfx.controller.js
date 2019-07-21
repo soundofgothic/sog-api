@@ -10,18 +10,30 @@ module.exports = function (app) {
     }));
 
     app.get('/sfx/', (req, res) => {
-        let filter = req.query.filter || '';
-        let page = parseInt(req.query.page) || 0;
-        let pageSize = parseInt(req.query.pageSize) || 50;
-        let tags = req.query.tags || "all";
-        let solved = req.query.solved ? req.query.solved === 'true' : null;
-        let sortField = req.query.sortField ? req.query.sortField : 'not-set';
-        let sortOrder = req.query.sortOrder ? parseInt(req.query.sortOrder) : -1;
-        tags = tags.split(", ");
+        // let filter = req.query.filter || '';
+        // let page = parseInt(req.query.page) || 0;
+        // let pageSize = parseInt(req.query.pageSize) || 50;
+        // let tags = req.query.tags ? req.query.tags.split(", ") : ["all"];
+        // let solved = req.query.solved ? req.query.solved === 'true' : null;
+        // let sortField = req.query.sortField ? req.query.sortField : 'not-set';
+        // let sortOrder = req.query.sortOrder ? parseInt(req.query.sortOrder) : -1;
+        // let versions = req.query.vs ? req.query.vs.split(", ").map(v => parseInt(v)) : [1, 2, 3];
 
-        SFXService.searchSFX(filter, tags, pageSize, page, solved, sortField, sortOrder).then((sfx) => {
-            sfx.defaultPageSize = pageSize;
-            sfx.pageNumber = page;
+        let config = {
+            filter: req.query.filter || '',
+            page: parseInt(req.query.page) || 0,
+            pageSize: parseInt(req.query.pageSize) || 50,
+            tags: req.query.tags ? req.query.tags.split(", ") : ["all"],
+            solved: req.query.solved ? req.query.solved === 'true' : null,
+            sortField: req.query.sortField ? req.query.sortField : 'not-set',
+            sortOrder: req.query.sortOrder ? parseInt(req.query.sortOrder) : -1,
+            versions: req.query.g ? req.query.g.split(", ").map(v => parseInt(v)) : [1, 2, 3]
+        };
+
+
+        SFXService.searchSFX(config).then((sfx) => {
+            sfx.defaultPageSize = config.pageSize;
+            sfx.pageNumber = config.page;
             sfx.recordsOnPage = sfx.records.length;
             res.json(sfx);
         }).catch((e) => {
