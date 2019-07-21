@@ -3,8 +3,18 @@ let dbname = require('../utils').dbname;
 let ObjectId = require('mongodb').ObjectId;
 
 
-module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved, sortField, sortOrder) {
+module.exports.searchSFX = function (config) {
     return new Promise((resolve, reject) => {
+
+        let filter = config.filter;
+        let tags = config.tags;
+        let pageSize = config.pageSize;
+        let pageNumber = config.pageNumber;
+        let solved = config.solved;
+        let sortField = config.sortField;
+        let sortOrder = config.sortOrder;
+        let versions = config.versions;
+
         getDbConnection().then((client) => {
             var db = client.db(dbname);
             var sounds = db.collection('sfx');
@@ -25,6 +35,8 @@ module.exports.searchSFX = function (filter, tags, pageSize, pageNumber, solved,
                         query.tags = {$all: tags}
                     }
                 }
+
+                query.g = {$in : versions};
 
                 let sort = {};
                 if(sortField !== 'not-set') {
@@ -143,7 +155,7 @@ module.exports.getSFXTags = function () {
             Promise.all([tagsCounted, untaggedCounter]).then(([tagsCounter, untaggedCounter]) => {
                 tagsCounter.push({_id: "null", count: untaggedCounter});
                 resolve(tagsCounter);
-            })
+            }).finally(() => client.close());
         });
     });
 };

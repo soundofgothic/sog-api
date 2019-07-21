@@ -10,11 +10,14 @@ module.exports = function (app) {
     }));
 
     app.get('/reports', (req, res) => {
-        var page = parseInt(req.query.page) || 0;
-        var pageSize = parseInt(req.query.pageSize) || 50;
-        var filter = req.query.filter || '';
+        let config = {
+            filter: req.query.filter || '',
+            page: parseInt(req.query.page) || 0,
+            pageSize: parseInt(req.query.pageSize) || 50,
+            versions: req.query.g ? req.query.g.split(", ").map(v => parseInt(v)) : [1, 2, 3]
+        };
 
-        reportService.searchReports(filter, pageSize, page).then((texts) => {
+        reportService.searchReports(config).then((texts) => {
             texts.defaultPageSize = pageSize;
             texts.pageNumber = page;
             texts.recordsOnPage = texts.records.length;
