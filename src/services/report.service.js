@@ -58,6 +58,29 @@ module.exports.resolveReport = function (id, newText, userId) {
     });
 };
 
+module.exports.resolveFilename = function (id, filename, userId) {
+    return new Promise(resolve => {
+        getDbConnection().then(client => {
+            let db = client.db(dbname);
+            let texts = db.collection('texts');
+            let users = db.collection('users');
+            let updateText = texts.updateOne({_id: ObjectId(id)}, {
+                $set: {"filename": filename},
+                $unset: {"details": ""}
+            });
+            let updateUser = users.updateOne({_id: ObjectId(userId)}, {
+                $inc: {"actions": 1},
+                $push: {"modified": ObjectId(id)}
+            });
+            Promise.all([updateText, updateUser]).then(() => {
+                resolve({status: "ok"});
+            }).catch((err) => {
+                resolve({status: "err"})
+            }).finally(() => client.close());
+        });
+    });
+};
+
 module.exports.deleteReport = function (id, userId) {
     return new Promise((resolve, reject) => {
         getDbConnection().then((client) => {

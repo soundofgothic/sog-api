@@ -36,6 +36,15 @@ module.exports = function (app) {
        })
     });
 
+    app.post('/reports/filename', (req, res) =>{
+        let id = req.body.id;
+        let filename = req.body.filename;
+        let user = utils.getUserFromToken(req);
+        reportService.resolveFilename(id, filename, user.id).then((status)=>{
+            res.json(status);
+        })
+    });
+
     app.post('/reports/cancel', (req, res) =>{
         let id = req.body.id;
         let user = utils.getUserFromToken(req);
