@@ -18,8 +18,8 @@ module.exports = function (app) {
         };
 
         reportService.searchReports(config).then((texts) => {
-            texts.defaultPageSize = pageSize;
-            texts.pageNumber = page;
+            texts.defaultPageSize = config.pageSize;
+            texts.pageNumber = config.page;
             texts.recordsOnPage = texts.records.length;
             res.json(texts);
         }).catch((e) => {
