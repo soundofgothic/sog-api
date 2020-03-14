@@ -45,7 +45,7 @@ module.exports.createUser = function(newUser) {
 module.exports.authenticate = function(theUser) {
     return new Promise((resolve, reject)=>{
         getDbConnection().then((client)=>{
-            var db = client.db(dbname);
+            const db = client.db(dbname);
             db.collection('users').findOne({email:theUser.email},(err,user)=>{
                 if(err){
                     console.log('Error getting users list:'+err);
