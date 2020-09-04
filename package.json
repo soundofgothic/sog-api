@@ -15,6 +15,6 @@
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.5.0",
-    "mongodb": "^3.1.4"
+    "mongodb": "^3.1.13"
   }
 }
