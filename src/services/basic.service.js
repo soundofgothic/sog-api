@@ -31,7 +31,6 @@ module.exports.searchTexts = function (config, text, pageSize, pageNumber) {
                         recordCountTotal: count
                     });
                 }).finally(() => client.close());
-                ;
             });
         });
     });
@@ -54,7 +53,6 @@ module.exports.searchBySource = function (source, pageSize, pageNumber) {
                     recordCountTotal: count
                 });
             }).finally(() => client.close());
-            ;
         });
     });
 };
@@ -65,10 +63,20 @@ module.exports.searchById = function (id) {
             let db = client.db(dbname);
             let texts = db.collection('texts');
             let query = texts.findOne({_id: ObjectId(id)}).then(data => resolve(data)).finally(() => client.close());
-            ;
         });
     });
 };
+
+module.exports.searchByGFilename = function (g, filename) {
+    return new Promise((resolve, reject) => {
+        getDbConnection().then(client => {
+            const db = client.db(dbname);
+            const texts = db.collection('texts');
+            console.log({filename, g})
+            texts.findOne({filename, g}).then(data => resolve(data), err => reject(err)).finally(() => client.close());
+        })
+    })
+}
 
 module.exports.reportById = function (id, details) {
     return new Promise((resolve, reject) => {
@@ -82,3 +90,28 @@ module.exports.reportById = function (id, details) {
         })
     })
 };
+
+module.exports.deleteDuplicates = function () {
+    return new Promise((resolve, reject) => {
+        getDbConnection().then(client => {
+            const db = client.db(dbname)
+            const texts = db.collection('texts');
+            texts.aggregate([{
+                $group: {
+                    _id: {filename: "$filename", g: "$g"},
+                    records: {$push: "$$ROOT"},
+                    count: {$sum: 1}
+                }
+            }, {$match: {count: {$gt: 1}}}])
+                .toArray()
+                .then(async results => {
+                    const toDelete = [];
+                    results.forEach(result => {
+                        toDelete.push(...result.records.slice(1).map(r => r._id))
+                    })
+                    const data = await texts.removeMany({"_id": { "$in": toDelete }})
+                    resolve(data)
+                }).finally(() => client.close())
+        })
+    })
+}
