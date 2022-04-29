@@ -101,6 +101,8 @@ module.exports.deleteReport = function (id, userId) {
     });
 };
 
+
+
 module.exports.deleteEntry = function (id, userId) {
     return new Promise(async (resolve, reject) => {
         getDbConnection().then(async (client) => {

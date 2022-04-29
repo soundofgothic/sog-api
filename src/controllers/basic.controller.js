@@ -40,10 +40,16 @@ module.exports = function (app) {
         basicService.searchById(id).then(text => res.json(text));
     });
 
+    app.get('/record/:g/:filename', (req, res) => {
+        const g = req.params.g;
+        const filename = req.params.filename;
+        basicService.searchByGFilename(g, filename).then(text => res.json(text));
+    });
+
     app.post('/report/:id', (req, res) => {
         let id = req.params.id;
         let details = req.body.details;
-        //there will be captcha verification
+        //there will be captcha verification (XD)
         basicService.reportById(id, details).then(status => res.json(status));
     });
 };
