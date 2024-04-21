@@ -1,15 +1,24 @@
-FROM keymetrics/pm2:latest-alpine
+# Use the official Node.js 14 image from Docker Hub
+FROM node:14
 
-# Bundle APP files
-COPY src src/
-COPY package.json .
-COPY pm2.json .
+# Set the working directory
+WORKDIR /usr/src/app
 
-# Install app dependencies
-ENV NPM_CONFIG_LOGLEVEL warn
-RUN npm install --production
+# Install the application dependencies
+# We are using a wildcard to ensure both package.json AND package-lock.json are copied
+# where available
+COPY package*.json ./
 
-# Show current folder structure in logs
-RUN ls -al -R
+RUN npm install
 
-CMD [ "pm2-runtime", "start", "pm2.json" ]
+# If you are building your code for production
+# RUN npm ci --only=production
+
+# Bundle the application source inside the Docker image
+COPY . .
+
+# Expose the application on port 3000
+EXPOSE 3000
+
+# Define the command to run the application
+CMD [ "npm", "start" ]
