@@ -2,6 +2,12 @@ const express = require('express');
 var cors = require('cors');
 const app = express();
 
+// add logging middleware
+app.use(function (req, res, next) {
+    console.log(req.method + ' ' + req.url);
+    next();
+});
+
 app.use(express.json());
 app.use(cors());
 
@@ -18,4 +24,4 @@ app.use(function (err, req, res, next) {
     }
 });
 
-app.listen(3000, '127.0.0.1', () => console.log('App listening on port 3000!'));
+app.listen(3000, '0.0.0.0', () => console.log('App listening on port 3000!'));
